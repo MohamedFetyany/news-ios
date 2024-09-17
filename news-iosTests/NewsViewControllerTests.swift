@@ -11,6 +11,8 @@ import news_ios
 
 class NewsViewController: UITableViewController {
     
+    private var onViewIsAppearing: ((NewsViewController) -> Void)?
+    
     private var loader: NewsLoader?
     
     convenience init(loader: NewsLoader) {
@@ -24,11 +26,24 @@ class NewsViewController: UITableViewController {
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-        load()
+        
+        onViewIsAppearing = { vc in
+            vc.onViewIsAppearing = nil
+            vc.load()
+        }
+    }
+    
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        
+        onViewIsAppearing?(self)
     }
     
     @objc private func load() {
-        loader?.load { _ in }
+        refreshControl?.beginRefreshing()
+        loader?.load { [weak self] _ in
+            self?.refreshControl?.endRefreshing()
+        }
     }
 }
 
@@ -48,6 +63,22 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadCallCount, 3, "Expected yet anthor loading request once user initiates anthor reload")
     }
     
+    func test_loadingNewsIndicator_isVisibleWhileLoadingNews() {
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator once view appears")
+   
+        loader.completeNewsLoading(at: 0)
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once loading is completed")
+        
+        sut.simulateUserInitiatedFeedReload()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator once user initiates a reload")
+    
+        loader.completeNewsLoading(at: 1)
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once user initiated loading is completed")
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
@@ -64,10 +95,17 @@ class NewsViewControllerTests: XCTestCase {
     }
     
     class NewsLoaderSpy: NewsLoader {
-        private(set) var loadCallCount = 0
+        private var completions = [(NewsLoader.Result) -> Void]()
+        var loadCallCount: Int {
+            completions.count
+        }
         
         func load(completion: @escaping (NewsLoader.Result) -> Void) {
-            loadCallCount += 1
+            completions.append(completion)
+        }
+        
+        func completeNewsLoading(at index: Int) {
+            completions[index](.success([]))
         }
     }
 }
