@@ -14,19 +14,11 @@
 			remoteGlobalIDString = DDD294D42C99727300120EDF;
 			remoteInfo = "news-ios";
 		};
-		DDD294F62C99727400120EDF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DDD294CD2C99727300120EDF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DDD294D42C99727300120EDF;
-			remoteInfo = "news-ios";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		DDD294D52C99727300120EDF /* news-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "news-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDD294EB2C99727400120EDF /* news-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "news-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DDD294F52C99727400120EDF /* news-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "news-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -53,11 +45,6 @@
 			path = "news-iosTests";
 			sourceTree = "<group>";
 		};
-		DDD294F82C99727400120EDF /* news-iosUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "news-iosUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,13 +62,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DDD294F22C99727400120EDF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -90,7 +70,6 @@
 			children = (
 				DDD294D72C99727300120EDF /* news-ios */,
 				DDD294EE2C99727400120EDF /* news-iosTests */,
-				DDD294F82C99727400120EDF /* news-iosUITests */,
 				DDD294D62C99727300120EDF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -100,7 +79,6 @@
 			children = (
 				DDD294D52C99727300120EDF /* news-ios.app */,
 				DDD294EB2C99727400120EDF /* news-iosTests.xctest */,
-				DDD294F52C99727400120EDF /* news-iosUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -153,29 +131,6 @@
 			productReference = DDD294EB2C99727400120EDF /* news-iosTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DDD294F42C99727400120EDF /* news-iosUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DDD295062C99727400120EDF /* Build configuration list for PBXNativeTarget "news-iosUITests" */;
-			buildPhases = (
-				DDD294F12C99727400120EDF /* Sources */,
-				DDD294F22C99727400120EDF /* Frameworks */,
-				DDD294F32C99727400120EDF /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DDD294F72C99727400120EDF /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DDD294F82C99727400120EDF /* news-iosUITests */,
-			);
-			name = "news-iosUITests";
-			packageProductDependencies = (
-			);
-			productName = "news-iosUITests";
-			productReference = DDD294F52C99727400120EDF /* news-iosUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -190,10 +145,6 @@
 						CreatedOnToolsVersion = 16.0;
 					};
 					DDD294EA2C99727400120EDF = {
-						CreatedOnToolsVersion = 16.0;
-						TestTargetID = DDD294D42C99727300120EDF;
-					};
-					DDD294F42C99727400120EDF = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = DDD294D42C99727300120EDF;
 					};
@@ -215,7 +166,6 @@
 			targets = (
 				DDD294D42C99727300120EDF /* news-ios */,
 				DDD294EA2C99727400120EDF /* news-iosTests */,
-				DDD294F42C99727400120EDF /* news-iosUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -229,13 +179,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DDD294E92C99727400120EDF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DDD294F32C99727400120EDF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -259,13 +202,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DDD294F12C99727400120EDF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -273,11 +209,6 @@
 			isa = PBXTargetDependency;
 			target = DDD294D42C99727300120EDF /* news-ios */;
 			targetProxy = DDD294EC2C99727400120EDF /* PBXContainerItemProxy */;
-		};
-		DDD294F72C99727400120EDF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DDD294D42C99727300120EDF /* news-ios */;
-			targetProxy = DDD294F62C99727400120EDF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -304,9 +235,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -332,9 +267,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -469,9 +408,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-iosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/news-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/news-ios";
 			};
 			name = Debug;
@@ -488,44 +431,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-iosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/news-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/news-ios";
-			};
-			name = Release;
-		};
-		DDD295072C99727400120EDF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VLX6SFSRQ2;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-iosUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "news-ios";
-			};
-			name = Debug;
-		};
-		DDD295082C99727400120EDF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VLX6SFSRQ2;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mif50.news-iosUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "news-ios";
 			};
 			name = Release;
 		};
@@ -555,15 +468,6 @@
 			buildConfigurations = (
 				DDD295042C99727400120EDF /* Debug */,
 				DDD295052C99727400120EDF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DDD295062C99727400120EDF /* Build configuration list for PBXNativeTarget "news-iosUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DDD295072C99727400120EDF /* Debug */,
-				DDD295082C99727400120EDF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
