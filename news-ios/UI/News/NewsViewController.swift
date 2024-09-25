@@ -42,10 +42,11 @@ public final class NewsViewController: UITableViewController {
     @objc private func load() {
         refreshControl?.beginRefreshing()
         loader?.load { [weak self] result in
-            let news = (try? result.get()) ?? []
-            self?.tableModel = news
-            self?.tableView.reloadData()
-            self?.refreshControl?.endRefreshing()
+            if let news = try? result.get() {
+                self?.tableModel = news
+                self?.tableView.reloadData()
+                self?.refreshControl?.endRefreshing()
+            }
         }
     }
     

@@ -57,6 +57,19 @@ class NewsViewControllerTests: XCTestCase {
         assertThat(sut,isRendering: [image0, image1])
     }
     
+    func test_loadNewsCompletion_doesNotAlertCurrentRenderingStateOnError() {
+        let image0 = makeImage()
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [image0], at: 0)
+        assertThat(sut,isRendering: [image0])
+        
+        sut.simulateUserInitiatedFeedReload()
+        loader.completeNewsLoadingWithError(at: 1)
+        assertThat(sut,isRendering: [image0])
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
@@ -135,6 +148,11 @@ class NewsViewControllerTests: XCTestCase {
         
         func completeNewsLoading(with news: [NewsImage] = [], at index: Int) {
             completions[index](.success(news))
+        }
+        
+        func completeNewsLoadingWithError(at index: Int) {
+            let error = NSError(domain: "any error", code: 0)
+            completions[index](.failure(error))
         }
     }
 }
