@@ -9,44 +9,6 @@ import XCTest
 import UIKit
 import news_ios
 
-class NewsViewController: UITableViewController {
-    
-    private var onViewIsAppearing: ((NewsViewController) -> Void)?
-    
-    private var loader: NewsLoader?
-    
-    convenience init(loader: NewsLoader) {
-        self.init()
-        self.loader = loader
-    }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-        
-        onViewIsAppearing = { vc in
-            vc.onViewIsAppearing = nil
-            vc.load()
-        }
-    }
-    
-    override func viewIsAppearing(_ animated: Bool) {
-        super.viewIsAppearing(animated)
-        
-        onViewIsAppearing?(self)
-    }
-    
-    @objc private func load() {
-        refreshControl?.beginRefreshing()
-        loader?.load { [weak self] _ in
-            self?.refreshControl?.endRefreshing()
-        }
-    }
-}
-
 class NewsViewControllerTests: XCTestCase {
     
     func test_loadNewsActions_requestsNewsFromLoader() {

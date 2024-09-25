@@ -8,5 +8,9 @@
 import Foundation
 
 public struct NewsImage: Equatable {
-    
+    let id: UUID
+    let title: String
+    let date: String
+    let channel: String
+    let url: URL
 }
