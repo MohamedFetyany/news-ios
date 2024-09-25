@@ -41,6 +41,22 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once user initiated loading is completed")
     }
     
+    func test_loadNewsCompletion_rendersSuccessfullyLoadedNews() {
+        let image0 = makeImage(title: "a title",date: "a date",channel: "a channerl")
+        let image1 = makeImage(title: "another title",date: "another date",channel: "another channerl")
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        assertThat(sut,isRendering: [])
+        
+        loader.completeNewsLoading(with: [image0], at: 0)
+        assertThat(sut,isRendering: [image0])
+        
+        sut.simulateUserInitiatedFeedReload()
+        loader.completeNewsLoading(with: [image0, image1], at: 1)
+        assertThat(sut,isRendering: [image0, image1])
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
@@ -56,7 +72,58 @@ class NewsViewControllerTests: XCTestCase {
         return (sut, loader)
     }
     
-    class NewsLoaderSpy: NewsLoader {
+    private func assertThat(
+        _ sut: NewsViewController,
+        isRendering news: [NewsImage],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard sut.numberOfRenderedNewsImageViews() == news.count else {
+            return XCTFail("Expected \(news.count) images, got \(sut.numberOfRenderedNewsImageViews()) instead", file: file, line: line)
+        }
+        
+        news.enumerated().forEach { index, image in
+            assertThat(sut, hasViewConfiguredFor: image, at: index, file: file, line: line)
+        }
+    }
+    
+    private func assertThat(
+        _ sut: NewsViewController,
+        hasViewConfiguredFor image: NewsImage,
+        at index: Int,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let view = sut.newsImageView(at: index)
+        
+        guard let cell = view as? NewsImageCell else {
+            return XCTFail("Expected \(NewsImageCell.self) instance, got \(String(describing: view)) instead", file: file, line: line)
+        }
+        
+        XCTAssertEqual(cell.titleText, image.title, "Expected title text to be \(String(describing: image.title)) for image view at index (\(index))", file: file, line: line)
+        
+        XCTAssertEqual(cell.dateText, image.date, "Expected date text to be \(String(describing: image.date)) for image view at index (\(index)", file: file, line: line)
+        
+        XCTAssertEqual(cell.channelText, image.channel, "Expected channel text to be \(String(describing: image.channel)) for image view at index (\(index))", file: file, line: line)
+    }
+    
+    private func makeImage(
+        title: String = "a title",
+        date: String = "a date",
+        channel: String = "a channel",
+        url: URL =  URL(string: "https://a-url.com")!
+    ) -> NewsImage {
+        NewsImage(
+            id: UUID(),
+            title: title,
+            date: date,
+            channel: channel,
+            url: url
+        )
+    }
+    
+    private class NewsLoaderSpy: NewsLoader {
         private var completions = [(NewsLoader.Result) -> Void]()
         var loadCallCount: Int {
             completions.count
@@ -66,8 +133,8 @@ class NewsViewControllerTests: XCTestCase {
             completions.append(completion)
         }
         
-        func completeNewsLoading(at index: Int) {
-            completions[index](.success([]))
+        func completeNewsLoading(with news: [NewsImage] = [], at index: Int) {
+            completions[index](.success(news))
         }
     }
 }
@@ -83,6 +150,20 @@ private extension UIRefreshControl {
     }
 }
 
+private extension NewsImageCell {
+    var titleText: String? {
+        titleLabel.text
+    }
+    
+    var dateText: String? {
+        dateLabel.text
+    }
+    
+    var channelText: String? {
+        channelLabel.text
+    }
+}
+
 private extension NewsViewController {
     func simulateUserInitiatedFeedReload() {
         refreshControl?.simulatePullToRefresh()
@@ -91,6 +172,18 @@ private extension NewsViewController {
     var isShowingLoadingIndicator: Bool {
         refreshControl?.isRefreshing == true
     }
+    
+    func newsImageView(at row: Int) -> UITableViewCell? {
+        let ds = tableView.dataSource
+        let index = IndexPath(row: row, section: newsSection)
+        return ds?.tableView(tableView, cellForRowAt: index)
+    }
+
+    func numberOfRenderedNewsImageViews() -> Int {
+        tableView.numberOfRows(inSection: newsSection)
+    }
+    
+    private var newsSection: Int { 0 }
 }
 
 private extension NewsViewController {
