@@ -45,8 +45,8 @@ public final class NewsViewController: UITableViewController {
             if let news = try? result.get() {
                 self?.tableModel = news
                 self?.tableView.reloadData()
-                self?.refreshControl?.endRefreshing()
             }
+            self?.refreshControl?.endRefreshing()
         }
     }
     
