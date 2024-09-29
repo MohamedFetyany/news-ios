@@ -18,10 +18,10 @@ class NewsViewControllerTests: XCTestCase {
         sut.simulateAppearance()
         XCTAssertEqual(loader.loadCallCount, 1, "Expected a loading request once view appears")
         
-        sut.simulateUserInitiatedFeedReload()
+        sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadCallCount, 2, "Expected anthor loading request once user initiates a reload")
         
-        sut.simulateUserInitiatedFeedReload()
+        sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadCallCount, 3, "Expected yet anthor loading request once user initiates anthor reload")
     }
     
@@ -34,7 +34,7 @@ class NewsViewControllerTests: XCTestCase {
         loader.completeNewsLoading(at: 0)
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once loading is completes successfully")
         
-        sut.simulateUserInitiatedFeedReload()
+        sut.simulateUserInitiatedReload()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator once user initiates a reload")
     
         loader.completeNewsLoadingWithError(at: 1)
@@ -52,7 +52,7 @@ class NewsViewControllerTests: XCTestCase {
         loader.completeNewsLoading(with: [image0], at: 0)
         assertThat(sut,isRendering: [image0])
         
-        sut.simulateUserInitiatedFeedReload()
+        sut.simulateUserInitiatedReload()
         loader.completeNewsLoading(with: [image0, image1], at: 1)
         assertThat(sut,isRendering: [image0, image1])
     }
@@ -65,7 +65,7 @@ class NewsViewControllerTests: XCTestCase {
         loader.completeNewsLoading(with: [image0], at: 0)
         assertThat(sut,isRendering: [image0])
         
-        sut.simulateUserInitiatedFeedReload()
+        sut.simulateUserInitiatedReload()
         loader.completeNewsLoadingWithError(at: 1)
         assertThat(sut,isRendering: [image0])
     }
@@ -165,7 +165,7 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingRetryButton, true, "Expected retry action for second view once second image loading completes with error")
     }
     
-    func test_feedImageViewRetryButton_isVisibleOnInvalidImageData() {
+    func test_newsImageViewRetryButton_isVisibleOnInvalidImageData() {
         let (sut, loader) = makeSUT()
         
         sut.simulateAppearance()
@@ -179,7 +179,7 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(view?.isShowingRetryButton, true, "Expected retry action once image loading completes with invalid image data")
     }
     
-    func test_feedImageViewRetryButton_retriesImageLoad() {
+    func test_newsImageViewRetryButton_retriesImageLoad() {
         let image0 = makeImage(url: URL(string: "https://image-0.com")!)
         let image1 = makeImage(url: URL(string: "https://image-1.com")!)
         let (sut, loader) = makeSUT()
@@ -202,7 +202,7 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url, image1.url], "Expected fourth imageURL request after second view retry action")
     }
     
-    func test_feedImageView_preloadsImageURLWhenNearVisible() {
+    func test_newsImageView_preloadsImageURLWhenNearVisible() {
         let image0 = makeImage(url: URL(string: "https://image-0.com")!)
         let image1 = makeImage(url: URL(string: "https://image-1.com")!)
         let (sut, loader) = makeSUT()
@@ -216,6 +216,22 @@ class NewsViewControllerTests: XCTestCase {
         
         sut.simulateNewsImageViewNearVisible(at: 1)
         XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url], "Expected second image URL request once second image is near visible")
+    }
+    
+    func test_newsImageView_cancelsImageURLPreloadWhenNotNearVisibleAnyMore() {
+        let image0 = makeImage(url: URL(string: "https://image-0.com")!)
+        let image1 = makeImage(url: URL(string: "https://image-1.com")!)
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [image0, image1], at: 0)
+        XCTAssertEqual(loader.cancelledImageURLs, [], "Expected no cancelled image URL requests until image is not near visible")
+        
+        sut.simulateNewsImageViewNotNearVisible(at: 0)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.url], "Expected first cancelled image URL request once first image is no near visible anymore")
+        
+        sut.simulateNewsImageViewNotNearVisible(at: 1)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second cancelled image URL request once second image is not near visible anymore")
     }
     
     // MARK:  Helpers
@@ -392,7 +408,7 @@ private extension NewsImageCell {
 }
 
 private extension NewsViewController {
-    func simulateUserInitiatedFeedReload() {
+    func simulateUserInitiatedReload() {
         refreshControl?.simulatePullToRefresh()
     }
     
@@ -400,11 +416,20 @@ private extension NewsViewController {
         refreshControl?.isRefreshing == true
     }
     
+    func simulateNewsImageViewNotNearVisible(at row: Int) {
+        simulateNewsImageViewNearVisible(at: row)
+        
+        let pds = tableView.prefetchDataSource
+        let index = IndexPath(row: row, section: newsSection)
+        pds?.tableView?(tableView, cancelPrefetchingForRowsAt: [index])
+    }
+    
     func simulateNewsImageViewNearVisible(at row: Int) {
         let pds = tableView.prefetchDataSource
         let index = IndexPath(row: row, section: newsSection)
         pds?.tableView(tableView, prefetchRowsAt: [index])
     }
+    
     func simulateNewsImageViewNotVisibile(at row: Int) {
         let view = simulateNewsImageViewVisible(at: row)
         let dl = tableView.delegate
