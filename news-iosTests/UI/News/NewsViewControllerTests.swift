@@ -144,6 +144,27 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.renderedImage, imageData1, "Expected image for second view once second image loading completes successfully")
     }
     
+    func test_newsImageViewRetryButton_isVisibleOnImageLoadURLLoadError() {
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [makeImage(), makeImage()], at: 0)
+        
+        let view0 = sut.simulateNewsImageViewVisible(at: 0)
+        let view1 = sut.simulateNewsImageViewVisible(at: 1)
+        XCTAssertEqual(view0?.isShowingRetryButton, false, "Expected no retry action for first view while loading first image")
+        XCTAssertEqual(view1?.isShowingRetryButton, false, "Expected no retry action for second view while loading second image")
+        
+        let imageData0 = UIImage.make(withColor: .red).pngData()!
+        loader.completeImageLoading(with: imageData0, at: 0)
+        XCTAssertEqual(view0?.isShowingRetryButton, false, "Expected no retry action for first view once first image loading completes successfully")
+        XCTAssertEqual(view1?.isShowingRetryButton, false, "Expected no retry action state change for second view once first image loading completes successfully")
+        
+        loader.completeImageLoadingWithError(at: 1)
+        XCTAssertEqual(view0?.isShowingRetryButton, false, "Expected no retry action state change for second view once image loading completes with error")
+        XCTAssertEqual(view1?.isShowingRetryButton, true, "Expected retry action for second view once second image loading completes with error")
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
@@ -296,6 +317,10 @@ private extension NewsImageCell {
     
     var renderedImage: Data? {
         newsImageView.image?.pngData()
+    }
+    
+    var isShowingRetryButton: Bool {
+        newsRetryButton.isHidden == false
     }
 }
 
