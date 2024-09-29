@@ -7,14 +7,18 @@
 
 import UIKit
 
+public protocol NewsImageDataLoaderTask {
+    func cancel()
+}
+
 public protocol NewsImageDataLoader {
-    func loadImageData(from url: URL)
-    func cancelImageData(from url: URL)
+    func loadImageData(from url: URL) -> NewsImageDataLoaderTask
 }
 
 public final class NewsViewController: UITableViewController {
     
     private var tableModel = [NewsImage]()
+    private var tasks = [IndexPath: NewsImageDataLoaderTask]()
     
     private var onViewIsAppearing: ((NewsViewController) -> Void)?
     
@@ -67,13 +71,13 @@ public final class NewsViewController: UITableViewController {
         cell.titleLabel.text = cellModel.title
         cell.dateLabel.text = cellModel.date
         cell.channelLabel.text = cellModel.channel
-        imageLoader?.loadImageData(from: cellModel.url)
+        tasks[indexPath] = imageLoader?.loadImageData(from: cellModel.url)
         return cell
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let cellModel = tableModel[indexPath.row]
-        imageLoader?.cancelImageData(from: cellModel.url)
+        tasks[indexPath]?.cancel()
+        tasks[indexPath] = nil
     }
 }
 
