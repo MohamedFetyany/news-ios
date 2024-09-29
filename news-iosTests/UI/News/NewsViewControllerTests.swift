@@ -165,7 +165,7 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingRetryButton, true, "Expected retry action for second view once second image loading completes with error")
     }
     
-    func test_feedImageRetryButton_isVisibleOnInvalidImageData() {
+    func test_feedImageViewRetryButton_isVisibleOnInvalidImageData() {
         let (sut, loader) = makeSUT()
         
         sut.simulateAppearance()
@@ -177,6 +177,29 @@ class NewsViewControllerTests: XCTestCase {
         let invalidImageData = Data("Invalid image data".utf8)
         loader.completeImageLoading(with: invalidImageData, at: 0)
         XCTAssertEqual(view?.isShowingRetryButton, true, "Expected retry action once image loading completes with invalid image data")
+    }
+    
+    func test_feedImageViewRetryButton_retriesImageLoad() {
+        let image0 = makeImage(url: URL(string: "https://image-0.com")!)
+        let image1 = makeImage(url: URL(string: "https://image-1.com")!)
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [image0, image1], at: 0)
+        
+        let view0 = sut.simulateNewsImageViewVisible(at: 0)
+        let view1 = sut.simulateNewsImageViewVisible(at: 1)
+        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url], "Expected two image URL request for the two visible views")
+        
+        loader.completeImageLoadingWithError(at: 0)
+        loader.completeImageLoadingWithError(at: 1)
+        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url], "Expected only two image URL requests before retry action")
+        
+        view0?.simulateRetryAction()
+        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url], "Expected third imageURL request after first view retry action")
+        
+        view1?.simulateRetryAction()
+        XCTAssertEqual(loader.loadedImageURLs, [image0.url, image1.url, image0.url, image1.url], "Expected fourth imageURL request after second view retry action")
     }
     
     // MARK:  Helpers
@@ -312,6 +335,16 @@ private extension UIRefreshControl {
     }
 }
 
+private extension UIButton {
+    func simulateTap() {
+        allTargets.forEach { target in
+            actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach({
+                (target as NSObject).perform(Selector($0))
+            })
+        }
+    }
+}
+
 private extension NewsImageCell {
     var titleText: String? {
         titleLabel.text
@@ -335,6 +368,10 @@ private extension NewsImageCell {
     
     var isShowingRetryButton: Bool {
         newsRetryButton.isHidden == false
+    }
+    
+    func simulateRetryAction() {
+        newsRetryButton.simulateTap()
     }
 }
 
