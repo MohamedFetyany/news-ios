@@ -7,17 +7,23 @@
 
 import UIKit
 
+public protocol NewsImageDataLoader {
+    func loadImageData(from url: URL)
+}
+
 public final class NewsViewController: UITableViewController {
     
     private var tableModel = [NewsImage]()
     
     private var onViewIsAppearing: ((NewsViewController) -> Void)?
     
-    private var loader: NewsLoader?
+    private var newsLoader: NewsLoader?
+    private var imageLoader: NewsImageDataLoader?
     
-    public convenience init(loader: NewsLoader) {
+    public convenience init(newsLoader: NewsLoader, imageLoader: NewsImageDataLoader) {
         self.init()
-        self.loader = loader
+        self.newsLoader = newsLoader
+        self.imageLoader = imageLoader
     }
     
     
@@ -41,7 +47,7 @@ public final class NewsViewController: UITableViewController {
     
     @objc private func load() {
         refreshControl?.beginRefreshing()
-        loader?.load { [weak self] result in
+        newsLoader?.load { [weak self] result in
             if let news = try? result.get() {
                 self?.tableModel = news
                 self?.tableView.reloadData()
@@ -60,6 +66,7 @@ public final class NewsViewController: UITableViewController {
         cell.titleLabel.text = cellModel.title
         cell.dateLabel.text = cellModel.date
         cell.channelLabel.text = cellModel.channel
+        imageLoader?.loadImageData(from: cellModel.url)
         return cell
     }
 }
