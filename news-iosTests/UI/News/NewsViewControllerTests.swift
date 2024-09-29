@@ -102,6 +102,26 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second cancelled image URL request once second image is also not visible anymore")
     }
     
+    func test_newsImageView_showsImageLoadingIndicatorWhenLoading() {
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [makeImage(),makeImage()], at: 0)
+        
+        let view0 = sut.simulateNewsImageViewVisible(at: 0)
+        let view1 = sut.simulateNewsImageViewVisible(at: 1)
+        XCTAssertEqual(view0?.isShowingImageLoadingIndicator, true, "Expected loading indicator for first view while loading first image")
+        XCTAssertEqual(view1?.isShowingImageLoadingIndicator, true ,"Expected loading indicator for second view while loading second image")
+        
+        loader.completeImageLoading(at: 0)
+        XCTAssertEqual(view0?.isShowingImageLoadingIndicator, false, "Expected no loading indicator for first view once first loading completes successfully")
+        XCTAssertEqual(view1?.isShowingImageLoadingIndicator, true, "Expected no loading indicator state change for second view once first image loading completes successfully")
+        
+        loader.completeImageLoadingWithError(at: 1)
+        XCTAssertEqual(view0?.isShowingImageLoadingIndicator, false, "Expected no loading indicator state change for first view once second image loading completes with error")
+        XCTAssertEqual(view1?.isShowingImageLoadingIndicator, false, "Expected no loading indicator for second view once second image competes with error")
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
@@ -191,14 +211,27 @@ class NewsViewControllerTests: XCTestCase {
         
         // MARK:  NewsImageDataLoader
         
-        private(set) var loadedImageURLs = [URL]()
+        private(set) var imageRequests = [(url: URL, completion: (NewsImageDataLoader.Result) -> Void)]()
+        
+        var loadedImageURLs: [URL] {
+            imageRequests.map { $0.url }
+        }
         private(set) var cancelledImageURLs = [URL]()
         
-        func loadImageData(from url: URL) -> NewsImageDataLoaderTask {
-            loadedImageURLs.append(url)
+        func loadImageData(from url: URL,completion: @escaping ((NewsImageDataLoader.Result) -> Void)) -> NewsImageDataLoaderTask {
+            imageRequests.append((url, completion))
             return TaskSpy { [weak self] in
                 self?.cancelledImageURLs.append(url)
             }
+        }
+        
+        func completeImageLoading(at index: Int) {
+            imageRequests[index].completion(.success(Data()))
+        }
+        
+        func completeImageLoadingWithError(at index: Int) {
+            let error = NSError(domain: "any error", code: 0)
+            imageRequests[index].completion(.failure(error))
         }
         
         private struct TaskSpy: NewsImageDataLoaderTask {
@@ -233,6 +266,10 @@ private extension NewsImageCell {
     
     var channelText: String? {
         channelLabel.text
+    }
+    
+    var isShowingImageLoadingIndicator: Bool {
+        newsImageContainer.isShimmering
     }
 }
 

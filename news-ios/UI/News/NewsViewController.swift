@@ -12,7 +12,9 @@ public protocol NewsImageDataLoaderTask {
 }
 
 public protocol NewsImageDataLoader {
-    func loadImageData(from url: URL) -> NewsImageDataLoaderTask
+    typealias Result = Swift.Result<Data, Error>
+    
+    func loadImageData(from url: URL, completion: @escaping ((Result) -> Void)) -> NewsImageDataLoaderTask
 }
 
 public final class NewsViewController: UITableViewController {
@@ -71,7 +73,10 @@ public final class NewsViewController: UITableViewController {
         cell.titleLabel.text = cellModel.title
         cell.dateLabel.text = cellModel.date
         cell.channelLabel.text = cellModel.channel
-        tasks[indexPath] = imageLoader?.loadImageData(from: cellModel.url)
+        cell.newsImageContainer.startShimmering()
+        tasks[indexPath] = imageLoader?.loadImageData(from: cellModel.url) { [weak cell] _ in
+            cell?.newsImageContainer.stopShimmering()
+        }
         return cell
     }
     
