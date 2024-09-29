@@ -17,7 +17,7 @@ public protocol NewsImageDataLoader {
     func loadImageData(from url: URL, completion: @escaping ((Result) -> Void)) -> NewsImageDataLoaderTask
 }
 
-public final class NewsViewController: UITableViewController {
+public final class NewsViewController: UITableViewController, UITableViewDataSourcePrefetching {
     
     private var tableModel = [NewsImage]()
     private var tasks = [IndexPath: NewsImageDataLoaderTask]()
@@ -37,6 +37,7 @@ public final class NewsViewController: UITableViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.prefetchDataSource = self
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
         
@@ -96,6 +97,13 @@ public final class NewsViewController: UITableViewController {
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         tasks[indexPath]?.cancel()
         tasks[indexPath] = nil
+    }
+    
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let cellModel = tableModel[indexPath.row]
+            _ = imageLoader?.loadImageData(from: cellModel.url) { _ in }
+        }
     }
 }
 
