@@ -9,22 +9,17 @@ import UIKit
 
 public final class NewsViewController: UITableViewController, UITableViewDataSourcePrefetching {
     
-    private var tableModel = [NewsImage]() {
+    var tableModel = [NewImageCellController]() {
         didSet { tableView.reloadData() }
     }
     
-    private var cellControllers = [IndexPath: NewImageCellController]()
-    
     private var onViewIsAppearing: ((NewsViewController) -> Void)?
-    
-    private var imageLoader: NewsImageDataLoader?
-    
+        
     public var refreshController: NewsRefreshViewController?
     
-    public convenience init(newsLoader: NewsLoader, imageLoader: NewsImageDataLoader) {
+    public convenience init(refreshController: NewsRefreshViewController) {
         self.init()
-        self.refreshController = NewsRefreshViewController(newsLoader: newsLoader)
-        self.imageLoader = imageLoader
+        self.refreshController = refreshController
     }
     
     
@@ -34,9 +29,6 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
         tableView.prefetchDataSource = self
         
         refreshControl = refreshController?.view
-        refreshController?.onRefresh = { [weak self] news in
-            self?.tableModel = news
-        }
         
         onViewIsAppearing = { vc in
             vc.onViewIsAppearing = nil
@@ -73,13 +65,10 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
     }
     
     private func cellController(forRowAt indexPath: IndexPath) -> NewImageCellController {
-        let cellModel = tableModel[indexPath.row]
-        let controller = NewImageCellController(model: cellModel,imageLoader: imageLoader!)
-        cellControllers[indexPath] = controller
-        return controller
+        return tableModel[indexPath.row]
     }
     
     private func removeCellController(forRowAt indexPath: IndexPath) {
-        cellControllers[indexPath] = nil
+        tableModel[indexPath.row].cancelLoad()
     }
 }
