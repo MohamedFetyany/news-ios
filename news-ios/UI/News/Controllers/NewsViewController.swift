@@ -12,7 +12,8 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
     private var tableModel = [NewsImage]() {
         didSet { tableView.reloadData() }
     }
-    private var tasks = [IndexPath: NewsImageDataLoaderTask]()
+    
+    private var cellControllers = [IndexPath: NewImageCellController]()
     
     private var onViewIsAppearing: ((NewsViewController) -> Void)?
     
@@ -54,49 +55,31 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
     }
     
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellModel = tableModel[indexPath.row]
-        let cell = NewsImageCell()
-        cell.titleLabel.text = cellModel.title
-        cell.dateLabel.text = cellModel.date
-        cell.channelLabel.text = cellModel.channel
-        cell.newsImageView.image = nil
-        cell.newsRetryButton.isHidden = true
-        cell.newsImageContainer.startShimmering()
-        
-        let loadImage = { [weak cell, weak self] in
-            guard let self else { return }
-            
-            self.tasks[indexPath] = self.imageLoader?.loadImageData(from: cellModel.url) { [weak cell] result in
-                let data = try? result.get()
-                let image = data.map(UIImage.init) ?? nil
-                cell?.newsImageView.image = image
-                cell?.newsRetryButton.isHidden = image != nil
-                cell?.newsImageContainer.stopShimmering()
-            }
-        }
-        cell.onRetry = loadImage
-        loadImage()
-        return cell
+        cellController(forRowAt: indexPath).view()
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cancelTask(forRowAt: indexPath)
+        removeCellController(forRowAt: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let cellModel = tableModel[indexPath.row]
-            tasks[indexPath] = imageLoader?.loadImageData(from: cellModel.url) { _ in }
+            cellController(forRowAt: indexPath).preloadImage()
         }
     }
     
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach(cancelTask)
+        indexPaths.forEach(removeCellController)
     }
     
-    private func cancelTask(forRowAt indexPath: IndexPath) {
-        tasks[indexPath]?.cancel()
-        tasks[indexPath] = nil
+    private func cellController(forRowAt indexPath: IndexPath) -> NewImageCellController {
+        let cellModel = tableModel[indexPath.row]
+        let controller = NewImageCellController(model: cellModel,imageLoader: imageLoader!)
+        cellControllers[indexPath] = controller
+        return controller
+    }
+    
+    private func removeCellController(forRowAt indexPath: IndexPath) {
+        cellControllers[indexPath] = nil
     }
 }
-
