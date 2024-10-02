@@ -9,17 +9,20 @@ import UIKit
 
 public final class NewsViewController: UITableViewController, UITableViewDataSourcePrefetching {
     
-    private var tableModel = [NewsImage]()
+    private var tableModel = [NewsImage]() {
+        didSet { tableView.reloadData() }
+    }
     private var tasks = [IndexPath: NewsImageDataLoaderTask]()
     
     private var onViewIsAppearing: ((NewsViewController) -> Void)?
     
-    private var newsLoader: NewsLoader?
     private var imageLoader: NewsImageDataLoader?
+    
+    public var refreshController: NewsRefreshViewController?
     
     public convenience init(newsLoader: NewsLoader, imageLoader: NewsImageDataLoader) {
         self.init()
-        self.newsLoader = newsLoader
+        self.refreshController = NewsRefreshViewController(newsLoader: newsLoader)
         self.imageLoader = imageLoader
     }
     
@@ -28,12 +31,15 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
         super.viewDidLoad()
         
         tableView.prefetchDataSource = self
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
+        
+        refreshControl = refreshController?.view
+        refreshController?.onRefresh = { [weak self] news in
+            self?.tableModel = news
+        }
         
         onViewIsAppearing = { vc in
             vc.onViewIsAppearing = nil
-            vc.load()
+            vc.refreshController?.load()
         }
     }
     
@@ -41,17 +47,6 @@ public final class NewsViewController: UITableViewController, UITableViewDataSou
         super.viewIsAppearing(animated)
         
         onViewIsAppearing?(self)
-    }
-    
-    @objc private func load() {
-        refreshControl?.beginRefreshing()
-        newsLoader?.load { [weak self] result in
-            if let news = try? result.get() {
-                self?.tableModel = news
-                self?.tableView.reloadData()
-            }
-            self?.refreshControl?.endRefreshing()
-        }
     }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

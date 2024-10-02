@@ -87,6 +87,7 @@ extension NewsViewController {
         })
         
         refreshControl = fakeRefreshControl
+        refreshController?.view = fakeRefreshControl
     }
     
     private class FakeRefreshControl: UIRefreshControl {
