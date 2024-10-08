@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 public final class NewsUIComposer {
     
@@ -23,8 +24,8 @@ public final class NewsUIComposer {
     
     private static func adaptNewsToCellControllers(forwardingTo controller: NewsViewController, loader: NewsImageDataLoader) -> ([NewsImage]) -> Void {
         return { [weak controller] news in
-            controller?.tableModel = news.map({ news in
-                NewImageCellController(model: news, imageLoader: loader)
+            controller?.tableModel = news.map({ model in
+                NewImageCellController(viewModel: NewsImageViewModel(model: model, imageLoader: loader,imageTransformer: UIImage.init))
             })
         }
     }
