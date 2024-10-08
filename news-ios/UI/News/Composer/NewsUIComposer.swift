@@ -12,10 +12,11 @@ public final class NewsUIComposer {
     private init() {}
     
     public static func composeWith(newsLoader: NewsLoader, imageLoader: NewsImageDataLoader) -> NewsViewController {
-        let refreshController = NewsRefreshViewController(newsLoader: newsLoader)
+        let newsViewModel = NewsViewModel(loader: newsLoader)
+        let refreshController = NewsRefreshViewController(viewModel: newsViewModel)
         let newsController = NewsViewController(refreshController: refreshController)
         
-        refreshController.onRefresh = adaptNewsToCellControllers(forwardingTo: newsController, loader: imageLoader)
+        newsViewModel.onNewsLoad = adaptNewsToCellControllers(forwardingTo: newsController, loader: imageLoader)
         
         return newsController
     }
