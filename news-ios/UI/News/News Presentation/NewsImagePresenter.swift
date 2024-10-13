@@ -7,15 +7,6 @@
 
 import Foundation
 
-struct NewsImageViewModel<Image> {
-    let title: String
-    let date: String
-    let channel: String
-    let image: Image?
-    let isLoading: Bool
-    let shouldRetry: Bool
-}
-
 protocol NewsImageView {
     associatedtype Image
     
