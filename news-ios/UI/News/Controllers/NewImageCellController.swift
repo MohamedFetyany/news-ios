@@ -7,47 +7,42 @@
 
 import UIKit
 
-final class NewImageCellController {
+protocol NewImageCellControllerDelegate {
+    func didRequestImage()
+    func didCancelImageRequest()
+}
+
+final class NewImageCellController: NewsImageView {
     
-    private let viewModel: NewsImageViewModel<UIImage>
+    private lazy var cell = NewsImageCell()
     
-    init(viewModel: NewsImageViewModel<UIImage>) {
-        self.viewModel = viewModel
+    private let delegate: NewImageCellControllerDelegate
+    
+    init(delegate: NewImageCellControllerDelegate) {
+        self.delegate = delegate
     }
     
     func view() -> UITableViewCell {
-        let cell = binded(NewsImageCell())
-        viewModel.loadImageData()
+        delegate.didRequestImage()
         return cell
     }
     
     func preloadImage() {
-        viewModel.loadImageData()
+        delegate.didRequestImage()
     }
     
     func cancelLoad() {
-        viewModel.cancelImageDataLoad()
+        delegate.didCancelImageRequest()
     }
     
-    private func binded(_ cell: NewsImageCell) -> NewsImageCell {
+    func display(_ viewModel: NewsImageViewModel<UIImage>) {
         cell.titleLabel.text = viewModel.title
         cell.dateLabel.text = viewModel.date
         cell.channelLabel.text = viewModel.channel
-        cell.onRetry = viewModel.loadImageData
-        
-        viewModel.onImageLoad = { [weak cell] image in
-            cell?.newsImageView.image = image
-        }
-        
-        viewModel.onLoadImageStateChange = { [weak cell] isLoading in
-            cell?.newsImageContainer.isShimmering = isLoading
-        }
-        
-        viewModel.onShouldRetryImageLoadStateChange = { [weak cell] isShouldRetry in
-            cell?.newsRetryButton.isHidden = !isShouldRetry
-        }
-        
-        return cell
+        cell.newsImageView.image = viewModel.image
+        cell.newsImageContainer.isShimmering = viewModel.isLoading
+        cell.newsRetryButton.isHidden = !viewModel.shouldRetry
+        cell.onRetry = delegate.didRequestImage
     }
 }
 

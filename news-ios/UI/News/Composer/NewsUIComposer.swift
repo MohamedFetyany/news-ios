@@ -18,7 +18,7 @@ public final class NewsUIComposer {
         let newsController = NewsViewController(refreshController: refreshController)
         
         presentationAdapter.presenter = NewsPresenter(
-            loadingView: WeakRefVirtualProxy(object: refreshController),
+            loadingView: WeakRefVirtualProxy(refreshController),
             newsView: NewsViewAdapter(controller: newsController, loader: imageLoader)
         )
             
@@ -29,13 +29,19 @@ public final class NewsUIComposer {
 final class WeakRefVirtualProxy<T: AnyObject> {
     weak var object: T?
     
-    init(object: T) {
+    init(_ object: T) {
         self.object = object
     }
 }
 
 extension WeakRefVirtualProxy: NewsLoadingView where T: NewsLoadingView {
     func display(_ viewModel: NewsLoadingViewModel) {
+        object?.display(viewModel)
+    }
+}
+
+extension WeakRefVirtualProxy: NewsImageView where T: NewsImageView , T.Image == UIImage {
+    func display(_ viewModel: NewsImageViewModel<UIImage>) {
         object?.display(viewModel)
     }
 }
@@ -52,7 +58,10 @@ final class NewsViewAdapter: NewsView {
     
     func display(_ viewModel: NewsViewModel) {
         controller?.tableModel = viewModel.news.map({ model in
-            NewImageCellController(viewModel: NewsImageViewModel(model: model, imageLoader: loader,imageTransformer: UIImage.init))
+            let adapter = NewsImageDataLoaderPresentationAdapter<WeakRefVirtualProxy<NewImageCellController>, UIImage>(model: model, imageloader: loader)
+            let view = NewImageCellController(delegate: adapter)
+            adapter.presenter = NewsImagePresenter(view: WeakRefVirtualProxy(view),imageTransformer: UIImage.init)
+            return view
         })
     }
 }
@@ -79,5 +88,39 @@ final class NewsLoaderPresentationAdapter: NewsRefreshViewControllerDelegate {
                 self?.presenter?.didFinishLoadingWith(with: error)
             }
         }
+    }
+}
+
+final class NewsImageDataLoaderPresentationAdapter<View: NewsImageView, Image>: NewImageCellControllerDelegate where View.Image == Image {
+    
+    var presenter: NewsImagePresenter<View,Image>?
+    
+    private var task: NewsImageDataLoaderTask?
+    
+    private let model: NewsImage
+    private let imageloader: NewsImageDataLoader
+    
+    init(model: NewsImage, imageloader: NewsImageDataLoader) {
+        self.model = model
+        self.imageloader = imageloader
+    }
+    
+    func didRequestImage() {
+        presenter?.didStartLoadingImageData(for: model)
+        
+        task = imageloader.loadImageData(from: model.url) { [weak self, model] result in
+            switch result {
+            case let .success(data):
+                self?.presenter?.didFinishLoadingImageData(with: data, for: model)
+                
+            case let .failure(error):
+                self?.presenter?.didFinishLoadingImageData(with: error, for: model)
+            }
+        }
+    }
+    
+    func didCancelImageRequest() {
+        task?.cancel()
+        task = nil
     }
 }
