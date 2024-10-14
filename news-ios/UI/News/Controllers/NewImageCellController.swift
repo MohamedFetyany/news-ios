@@ -14,7 +14,7 @@ protocol NewImageCellControllerDelegate {
 
 final class NewImageCellController: NewsImageView {
     
-    private lazy var cell = NewsImageCell()
+    private var cell: NewsImageCell?
     
     private let delegate: NewImageCellControllerDelegate
     
@@ -22,9 +22,10 @@ final class NewImageCellController: NewsImageView {
         self.delegate = delegate
     }
     
-    func view() -> UITableViewCell {
+    func view(in tableView: UITableView) -> UITableViewCell {
+        cell = tableView.dequeueReusableCell()
         delegate.didRequestImage()
-        return cell
+        return cell!
     }
     
     func preloadImage() {
@@ -36,13 +37,13 @@ final class NewImageCellController: NewsImageView {
     }
     
     func display(_ viewModel: NewsImageViewModel<UIImage>) {
-        cell.titleLabel.text = viewModel.title
-        cell.dateLabel.text = viewModel.date
-        cell.channelLabel.text = viewModel.channel
-        cell.newsImageView.image = viewModel.image
-        cell.newsImageContainer.isShimmering = viewModel.isLoading
-        cell.newsRetryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = delegate.didRequestImage
+        cell?.titleLabel.text = viewModel.title
+        cell?.dateLabel.text = viewModel.date
+        cell?.channelLabel.text = viewModel.channel
+        cell?.newsImageView.setImageAnimated(viewModel.image)
+        cell?.newsImageContainer.isShimmering = viewModel.isLoading
+        cell?.newsRetryButton.isHidden = !viewModel.shouldRetry
+        cell?.onRetry = delegate.didRequestImage
     }
 }
 

@@ -8,21 +8,16 @@
 import UIKit
 
 public final class NewsImageCell: UITableViewCell {
-    
-    public let titleLabel = UILabel()
-    public let dateLabel = UILabel()
-    public let channelLabel = UILabel()
-    public let newsImageContainer = UIView()
-    public let newsImageView = UIImageView()
-    private(set) public lazy var newsRetryButton: UIButton = {
-        let button = UIButton()
-        button.addTarget(self, action: #selector(retryButtonTapped), for: .touchUpInside)
-        return button
-    }()
+    @IBOutlet private(set) public var titleLabel: UILabel!
+    @IBOutlet private(set) public var dateLabel: UILabel!
+    @IBOutlet private(set) public var channelLabel: UILabel!
+    @IBOutlet private(set) public var newsImageContainer: UIView!
+    @IBOutlet private(set) public var newsImageView: UIImageView!
+    @IBOutlet private(set) public var newsRetryButton: UIButton!
     
     var onRetry: (() -> Void)?
     
-    @objc private func retryButtonTapped() {
+    @IBAction private func retryButtonTapped() {
         onRetry?()
     }
 }
