@@ -31,11 +31,13 @@ extension NewsViewController {
         pds?.tableView(tableView, prefetchRowsAt: [index])
     }
     
-    func simulateNewsImageViewNotVisibile(at row: Int) {
+    @discardableResult
+    func simulateNewsImageViewNotVisibile(at row: Int) -> NewsImageCell? {
         let view = simulateNewsImageViewVisible(at: row)
         let dl = tableView.delegate
         let index = IndexPath(row: row, section: newsSection)
         dl?.tableView?(tableView, didEndDisplaying: view!, forRowAt: index)
+        return view
     }
     
     @discardableResult

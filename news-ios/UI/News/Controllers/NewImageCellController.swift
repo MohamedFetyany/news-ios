@@ -33,6 +33,7 @@ final class NewImageCellController: NewsImageView {
     }
     
     func cancelLoad() {
+        releaseCellForReuse()
         delegate.didCancelImageRequest()
     }
     
@@ -44,6 +45,10 @@ final class NewImageCellController: NewsImageView {
         cell?.newsImageContainer.isShimmering = viewModel.isLoading
         cell?.newsRetryButton.isHidden = !viewModel.shouldRetry
         cell?.onRetry = delegate.didRequestImage
+    }
+    
+    private func releaseCellForReuse() {
+        cell = nil
     }
 }
 

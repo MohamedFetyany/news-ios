@@ -234,6 +234,16 @@ class NewsViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second cancelled image URL request once second image is not near visible anymore")
     }
     
+    func test_newsImageView_doesNotRenderLoadedImageWhenViewNotVisibleAnyMore() {
+        let (sut, loader) = makeSUT()
+        sut.simulateAppearance()
+        loader.completeNewsLoading(with: [makeImage()], at: 0)
+        
+        let view = sut.simulateNewsImageViewNotVisibile(at: 0)
+        loader.completeImageLoading(with: UIImage.make(withColor: .red).pngData()!, at: 0)
+        XCTAssertNil(view?.renderedImage, "Expected no rendered image when an image load finishes after the view is not visible anymore")
+    }
+    
     // MARK:  Helpers
     
     private func makeSUT(
